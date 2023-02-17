@@ -1,1 +1,1 @@
-declare module "*.module.pcss";
+declare module "*.module.css";

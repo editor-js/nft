@@ -1,18 +1,19 @@
 /**
  * Import styles library
  */
-import styles from './styles.module.pcss';
+import styles from './styles.module.css';
 
 /**
  * Import types
  */
-import { NftToolData, NftToolConfig } from './types';
+import { NftToolData, NftToolConfig, NftToolServerResponse, NftToolServerResponseData, NftToolServerRequest } from './types';
 import { API, BlockTool, PasteConfig, PatternPasteEvent } from '@editorjs/editorjs';
 import { IconNft } from './icons';
 import { IconChevronDown } from '@codexteam/icons';
+import Dom from './utils/dom';
 
 /**
- * opensea Tool for Editor.js
+ * Nft Block Tool for Editor.js
  */
 export default class NftTool implements BlockTool {
   /**
@@ -52,15 +53,7 @@ export default class NftTool implements BlockTool {
     /**
      * Declare Tool's nodes
      */
-    this.nodes = {
-      wrapper: null,
-
-      image: null,
-      collection: null,
-      title: null,
-
-      refetchButton: null,
-    };
+    this.nodes = {};
   }
 
   /**
@@ -69,7 +62,7 @@ export default class NftTool implements BlockTool {
   static get toolbox() {
     return {
       icon: IconNft,
-      title: 'Token Card'
+      title: 'NFT Token Card'
     };
   }
 
@@ -94,32 +87,33 @@ export default class NftTool implements BlockTool {
   /**
    * Creates UI of a Block
    */
-  render(): HTMLElement {
-    this.nodes.wrapper = document.createElement('div');
-    this.nodes.wrapper.classList.add(styles['nft-tool']);
+  public render(): HTMLElement {
+    this.nodes.wrapper = Dom.make('div', styles['wrapper']);
 
     /** Compose form */
-    this.nodes.form = document.createElement('div');
-    this.nodes.form.classList.add(styles['nft-tool__form']);
+    this.nodes.form = Dom.make('div', styles['form']);
+    this.nodes.formNetworkWrapper = Dom.make('div', styles['form-param']);
 
-    this.nodes.formNetworkWrapper = document.createElement('div');
-    this.nodes.formNetworkWrapper.classList.add(styles['nft-tool__form-param']);
-
-    this.nodes.formNetworkLabel = document.createElement('label');
-    this.nodes.formNetworkLabel.classList.add(styles['nft-tool__form-label']);
+    this.nodes.formNetworkLabel = Dom.make('label', styles['form-label']);
     this.nodes.formNetworkLabel.innerHTML = 'Network';
     this.nodes.formNetworkWrapper.appendChild(this.nodes.formNetworkLabel);
-    this.nodes.formNetworkSelect = document.createElement('select');
-    this.nodes.formNetworkSelect.classList.add(styles['nft-tool__form-select']);
+
+    this.nodes.formNetworkSelect = Dom.make('select', styles['form-select']) as HTMLSelectElement;
     this.nodes.formNetworkSelect.style.backgroundImage = `url(data:image/svg+xml;utf8,${encodeURI(
       IconChevronDown
     )})`;
 
     [
-      { value: 'ethereum', label: 'Ethereum' },
-      { value: 'matic', label: 'Polygon' },
+      {
+        value: 'ethereum',
+        label: 'Ethereum'
+      },
+      {
+        value: 'matic',
+        label: 'Polygon'
+      },
     ].forEach((network) => {
-      const option = document.createElement('option');
+      const option = Dom.make('option') as HTMLOptionElement;
 
       option.value = network.value;
       option.innerHTML = network.label;
@@ -132,64 +126,44 @@ export default class NftTool implements BlockTool {
     });
     this.nodes.formNetworkWrapper.appendChild(this.nodes.formNetworkSelect);
 
-    this.nodes.formContractAddress = document.createElement('div');
-    this.nodes.formContractAddress.classList.add(styles['nft-tool__form-param']);
-    this.nodes.formContractAddressLabel = document.createElement('label');
-    this.nodes.formContractAddressLabel.classList.add(styles['nft-tool__form-label']);
+    this.nodes.formContractAddressWrapper = Dom.make('div', styles['form-param']);
+    this.nodes.formContractAddressLabel = Dom.make('label', styles['form-label']);
     this.nodes.formContractAddressLabel.innerHTML = 'Contract Address';
-    this.nodes.formContractAddressInput = document.createElement('input');
-    this.nodes.formContractAddressInput.classList.add(styles['nft-tool__form-input']);
-    this.nodes.formContractAddressInput.type = 'text';
+    this.nodes.formContractAddressWrapper.appendChild(this.nodes.formContractAddressLabel);
+
+    this.nodes.formContractAddressInput = Dom.make('input', styles['form-input']);
     this.nodes.formContractAddressInput.placeholder = '0x...';
+    this.nodes.formContractAddressWrapper.appendChild(this.nodes.formContractAddressInput);
 
-    this.nodes.formContractAddress.appendChild(this.nodes.formContractAddressLabel);
-    this.nodes.formContractAddress.appendChild(this.nodes.formContractAddressInput);
-
-    this.nodes.formTokenId = document.createElement('div');
-    this.nodes.formTokenId.classList.add(styles['nft-tool__form-param']);
-    this.nodes.formTokenIdLabel = document.createElement('label');
-    this.nodes.formTokenIdLabel.classList.add(styles['nft-tool__form-label']);
+    this.nodes.formTokenIdWrapper = Dom.make('div', styles['form-param']);
+    this.nodes.formTokenIdLabel = Dom.make('label', styles['form-label']);
     this.nodes.formTokenIdLabel.innerHTML = 'Token ID';
-    this.nodes.formTokenIdInput = document.createElement('input');
-    this.nodes.formTokenIdInput.classList.add(styles['nft-tool__form-input']);
-    this.nodes.formTokenIdInput.type = 'text';
+    this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdLabel);
+
+    this.nodes.formTokenIdInput = Dom.make('input', styles['form-input']);
     this.nodes.formTokenIdInput.placeholder = '12345';
+    this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdInput);
 
-    this.nodes.formTokenId.appendChild(this.nodes.formTokenIdLabel);
-    this.nodes.formTokenId.appendChild(this.nodes.formTokenIdInput);
-
-    this.nodes.formRefetchButton = document.createElement('button');
-    this.nodes.formRefetchButton.classList.add(styles['nft-tool__form-button']);
+    this.nodes.formRefetchButton = Dom.make('button', styles['form-button']);
     this.nodes.formRefetchButton.innerHTML = 'Fetch NFT';
     this.nodes.formRefetchButton.addEventListener('click', () => {
       this.fetchNft();
     });
 
     this.nodes.form.appendChild(this.nodes.formNetworkWrapper);
-    this.nodes.form.appendChild(this.nodes.formContractAddress);
-    this.nodes.form.appendChild(this.nodes.formTokenId);
+    this.nodes.form.appendChild(this.nodes.formContractAddressWrapper);
+    this.nodes.form.appendChild(this.nodes.formTokenIdWrapper);
     this.nodes.form.appendChild(this.nodes.formRefetchButton);
 
-
-
-
     /** Compose card */
-    this.nodes.card = document.createElement('div');
-    this.nodes.card.classList.add(styles['nft-tool__card']);
+    this.nodes.card = Dom.make('div', styles['card']);
+    this.nodes.media = Dom.make('div');
+    this.nodes.title = Dom.make('div', styles['title']);
+    this.nodes.collection = Dom.make('div', styles['collection']);
 
-    this.nodes.image = document.createElement('div');
-    this.nodes.image.classList.add(styles['nft-tool__card-image']);
-
-    this.nodes.title = document.createElement('div');
-    this.nodes.title.classList.add(styles['nft-tool__card-title']);
-
-    this.nodes.collection = document.createElement('div');
-    this.nodes.collection.classList.add(styles['nft-tool__card-collection']);
-
-    this.nodes.card.appendChild(this.nodes.image);
+    this.nodes.card.appendChild(this.nodes.media);
     this.nodes.card.appendChild(this.nodes.title);
     this.nodes.card.appendChild(this.nodes.collection);
-    /** */
 
     this.nodes.wrapper.appendChild(this.nodes.form);
     this.nodes.wrapper.appendChild(this.nodes.card);
@@ -207,14 +181,14 @@ export default class NftTool implements BlockTool {
   /**
    * Extracts Block data from the UI
    */
-  save(): NftToolData {
+  public save(): NftToolData {
     return this.data;
   }
 
   /**
    * Handle pasted content
    */
-  onPaste(event: PatternPasteEvent) {
+  public onPaste(event: PatternPasteEvent) {
     try {
       const { data } = event.detail;
       const groups = data.match(NftTool.regexp);
@@ -229,7 +203,7 @@ export default class NftTool implements BlockTool {
       /**
        * Prepare token data from regexp groups
        */
-      const tokenData ={
+      const tokenData = {
         network: groups[1],
         contractAddress: groups[2],
         tokenId: groups[3],
@@ -262,73 +236,75 @@ export default class NftTool implements BlockTool {
     this.loadNftData(tokenData);
   }
 
-  private loadNftData(tokenData: {network: string, contractAddress: string, tokenId: string}): void {
+  private async loadNftData(tokenData: {network: string, contractAddress: string, tokenId: string}): void {
     const { network, contractAddress, tokenId } = tokenData;
 
     if (!this.config.endpoint) {
       this.api.notifier.show({
-        message: 'Alchemy endpoint is not set',
+        message: 'Endpoint API is not set',
         style: 'error',
       });
       return;
     }
 
-    fetch(this.config.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const requestData: NftToolServerRequest = {
         network,
         contractAddress,
         tokenId,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!data.success) {
-          throw new Error(data.message);
-        }
+      }
 
-        this.data = data.message;
-        this.renderNftCard();
-      })
-      .catch((error) => {
-        this.api.notifier.show({
-          message: error.message,
-          style: 'error',
-        });
+      const response = await fetch(this.config.endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
       });
+
+      const data = await response.json() as NftToolServerResponse;
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+
+      this.data = data.message as NftToolServerResponseData;
+      this.fillNftCard();
+
+    } catch (error: any) {
+      this.api.notifier.show({
+        message: error.message,
+        style: 'error',
+      });
+    }
   }
 
   /**
-   * Regexp for a opensea link
+   * Fill NFT card with data
    */
-  private static get regexp(): RegExp {
-    return /^https:\/\/opensea\.io\/assets\/([a-zA-Z]+)\/([A-Za-z0-9]+)\/(([A-Za-z0-9]+))$/i;
-  }
-
-  /**
-   * Render NFT card into the wrapper
-   */
-  private renderNftCard(): void {
-    if (this.data.image.endsWith('mp4')) {
-      this.nodes.imageElement = document.createElement('video');
-      this.nodes.imageElement.setAttribute('playsinline', 'true');
-      this.nodes.imageElement.setAttribute('muted', 'true');
-      this.nodes.imageElement.setAttribute('autoplay', 'true');
-      this.nodes.imageElement.setAttribute('loop', 'true');
+  private fillNftCard(): void {
+    /**
+     * If media is a video, use video tag
+     */
+    if (this.data.media.endsWith('mp4')) {
+      this.nodes.imageElement = Dom.make('video', styles['media'], {
+        src: this.data.media,
+        playsinline: true,
+        muted: true,
+        autoplay: true,
+        loop: true,
+      });
     } else {
-      this.nodes.imageElement = document.createElement('img');
+      this.nodes.imageElement = Dom.make('img', styles['media'], {
+        src: this.data.media,
+      });
     }
 
-    this.nodes.imageElement.setAttribute('src', this.data.image);
-    this.nodes.imageElement.classList.add(styles['nft-tool__card-image']);
-
-    if (this.nodes.image) {
-      this.nodes.image.innerHTML = '';
-      this.nodes.image.appendChild(this.nodes.imageElement);
+    if (this.nodes.media) {
+      this.nodes.media.innerHTML = '';
+      this.nodes.media.appendChild(this.nodes.imageElement);
     }
+
     if (this.nodes.collection) this.nodes.collection.innerText = this.data.collection;
     if (this.nodes.title) this.nodes.title.innerText = this.data.title;
 
@@ -343,5 +319,12 @@ export default class NftTool implements BlockTool {
     if (this.nodes.formTokenIdInput) {
       this.nodes.formTokenIdInput.value = this.data.tokenId;
     }
+  }
+
+  /**
+   * Regexp for a opensea link
+   */
+  private static get regexp(): RegExp {
+    return /^https:\/\/opensea\.io\/assets\/([a-zA-Z]+)\/([A-Za-z0-9]+)\/(([A-Za-z0-9]+))$/i;
   }
 };

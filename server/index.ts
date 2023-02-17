@@ -1,5 +1,5 @@
 import { Alchemy, Network } from 'alchemy-sdk';
-import { NftToolData } from '../src/types/index';
+import { NftToolServerRequest, NftToolServerResponse, NftToolServerResponseData } from '../src/types/index';
 
 import * as dotenv from 'dotenv';
 dotenv.config()
@@ -17,14 +17,22 @@ app.use(express.json());
  */
 app.post('/alchemy', async (req, res) => {
   try {
-    const { network, contractAddress, tokenId } = req.body;
+    const { network, contractAddress, tokenId }: NftToolServerRequest = req.body;
 
     /**
      * Validate request body
      */
-    if (!network) throw new Error('«network» is required');
-    if (!contractAddress) throw new Error('«contractAddress» is required');
-    if (!tokenId) throw new Error('«tokenId» is required');
+    if (!network) {
+      throw new Error('«network» is required');
+    }
+
+    if (!contractAddress) {
+      throw new Error('«contractAddress» is required');
+    }
+
+    if (!tokenId) {
+      throw new Error('«tokenId» is required');
+    }
 
     /**
      * Set network name
@@ -64,16 +72,16 @@ app.post('/alchemy', async (req, res) => {
     /**
      * Prepare response
      */
-    const responseToolData: NftToolData = {
+    const responseToolData: NftToolServerResponseData = {
       network: network,
       contractAddress: nft.contractAddress,
       tokenId: nft.tokenId,
       title: metadata.title,
       collection: metadata.contract.name as string,
-      image: metadata.media[0].gateway as string,
+      media: metadata.media[0].gateway as string,
     }
 
-    const response = {
+    const response: NftToolServerResponse = {
       success: true,
       message: responseToolData
     };
@@ -82,7 +90,7 @@ app.post('/alchemy', async (req, res) => {
   } catch (error: any) {
     console.log(error);
 
-    const response = {
+    const response: NftToolServerResponse = {
       success: false,
       message: error.message,
     };
