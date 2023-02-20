@@ -100,7 +100,7 @@ export default class NftTool implements BlockTool {
     this.nodes.formNetworkWrapper = Dom.make('div', styles['form-param']);
 
     this.nodes.formNetworkLabel = Dom.make('label', styles['form-label']);
-    this.nodes.formNetworkLabel.innerHTML = 'Network';
+    this.nodes.formNetworkLabel.innerHTML = this.api.i18n.t('Network');
     this.nodes.formNetworkWrapper.appendChild(this.nodes.formNetworkLabel);
 
     this.nodes.formNetworkSelect = Dom.make('select', styles['form-select']) as HTMLSelectElement;
@@ -135,7 +135,7 @@ export default class NftTool implements BlockTool {
 
     this.nodes.formContractAddressWrapper = Dom.make('div', styles['form-param']);
     this.nodes.formContractAddressLabel = Dom.make('label', styles['form-label']);
-    this.nodes.formContractAddressLabel.innerHTML = 'Contract Address';
+    this.nodes.formContractAddressLabel.innerHTML = this.api.i18n.t('Contract Address');
     this.nodes.formContractAddressWrapper.appendChild(this.nodes.formContractAddressLabel);
 
     this.nodes.formContractAddressInput = Dom.make('input', styles['form-input']);
@@ -144,7 +144,7 @@ export default class NftTool implements BlockTool {
 
     this.nodes.formTokenIdWrapper = Dom.make('div', styles['form-param']);
     this.nodes.formTokenIdLabel = Dom.make('label', styles['form-label']);
-    this.nodes.formTokenIdLabel.innerHTML = 'Token ID';
+    this.nodes.formTokenIdLabel.innerHTML = this.api.i18n.t('Token ID');
     this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdLabel);
 
     this.nodes.formTokenIdInput = Dom.make('input', styles['form-input']);
@@ -152,7 +152,7 @@ export default class NftTool implements BlockTool {
     this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdInput);
 
     this.nodes.formRefetchButton = Dom.make('button', styles['form-button']);
-    this.nodes.formRefetchButton.innerHTML = 'Fetch NFT';
+    this.nodes.formRefetchButton.innerHTML = this.api.i18n.t('Fetch NFT');
     this.nodes.formRefetchButton.addEventListener('click', () => {
       this.fetchNft();
     });
