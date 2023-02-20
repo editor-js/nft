@@ -56,7 +56,12 @@ export interface NftToolServerResponse {
   /**
    * Response message
    */
-  message: NftToolServerResponseData | any;
+  message?: NftToolServerResponseData;
+
+  /**
+   * Response error
+   */
+  error?: string;
 }
 
 export interface NftToolServerResponseData {

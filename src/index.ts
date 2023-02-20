@@ -214,11 +214,20 @@ export default class NftTool implements BlockTool {
        */
       this.loadNftData(tokenData);
 
-    } catch (error: any) {
-      this.api.notifier.show({
-        message: error.message,
-        style: 'error',
-      });
+    } catch (error: unknown) {
+      console.error('[NFT Tool] onPaste:', error);
+
+      if (error instanceof Error) {
+        this.api.notifier.show({
+          message: error.message,
+          style: 'error',
+        });
+      } else {
+        this.api.notifier.show({
+          message: 'Something went wrong',
+          style: 'error',
+        });
+      }
     }
   }
 
@@ -241,7 +250,7 @@ export default class NftTool implements BlockTool {
 
     if (!this.config.endpoint) {
       this.api.notifier.show({
-        message: 'Endpoint API is not set',
+        message: 'Endpoint API does not set in tools config',
         style: 'error',
       });
       return;
@@ -265,17 +274,26 @@ export default class NftTool implements BlockTool {
       const data = await response.json() as NftToolServerResponse;
 
       if (!data.success) {
-        throw new Error(data.message);
+        throw new Error(data.error);
       }
 
       this.data = data.message as NftToolServerResponseData;
       this.fillNftCard();
 
-    } catch (error: any) {
-      this.api.notifier.show({
-        message: error.message,
-        style: 'error',
-      });
+    } catch (error: unknown) {
+      console.error('[NFT Tool] loadNftData:', error);
+
+      if (error instanceof Error) {
+        this.api.notifier.show({
+          message: error.message,
+          style: 'error',
+        });
+      } else {
+        this.api.notifier.show({
+          message: 'Something went wrong',
+          style: 'error',
+        });
+      }
     }
   }
 

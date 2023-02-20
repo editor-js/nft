@@ -87,12 +87,18 @@ app.post('/alchemy', async (req, res) => {
     };
 
     res.send(response);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error);
+
+    let errorMessage = 'Unknown error';
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
 
     const response: NftToolServerResponse = {
       success: false,
-      message: error.message,
+      error: errorMessage,
     };
 
     res.status(400).send(response);

@@ -1,8 +1,4 @@
-.github/
-assets/
-src/
-index.html
-LICENSE
-tsconfig.json
-vite.config.js
-yarn.lock
+**/*
+!dist/
+!LICENSE
+!README.md

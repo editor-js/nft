@@ -121,10 +121,6 @@
   width: 100%;
 
   background-color: #f0f0f0;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .title {

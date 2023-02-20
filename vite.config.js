@@ -1,4 +1,5 @@
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
+import eslint from 'vite-plugin-eslint'
 import path from 'path';
 
 /**
@@ -24,6 +25,7 @@ export default {
 
   plugins: [
     cssInjectedByJsPlugin(),
+    eslint(),
   ],
-}
+};
 
