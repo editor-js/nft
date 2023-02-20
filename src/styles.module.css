@@ -3,10 +3,19 @@
   --color-border: #EFF0F1;
   --color-border-focus: #007AFF;
 
+  --color-media-background: #F0F0F0;
+
   --color-card-title: #000;
   --color-card-collection: #707684;
 
+  --color-button-text: #333;
+  --color-button-background: #FFFFFF;
+  --color-button-background-hover: #F0F0F0;
+  --color-button-background-active: #E0E0E0;
+
   --border: 1px solid var(--color-border);
+
+  --card-box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.03);
 }
 
 .wrapper {
@@ -78,19 +87,19 @@
     padding: 8px 12px;
     border-radius: 4px;
     border: var(--border);
-    background-color: #fff;
+    background-color: var(--color-button-background);
     font-size: 14px;
     line-height: 1.4;
-    color: #333;
+    color: var(--color-button-text);
     outline: none;
 
     &:hover {
       cursor: pointer;
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--color-button-background-hover);
     }
 
     &:active {
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: var(--color-button-background-active);
     }
 
     &:focus {
@@ -109,9 +118,7 @@
 
   border-radius: 16px;
   border: var(--border);
-  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.03);
-
-  background: #FFFFFF;
+  box-shadow: var(--card-box-shadow);
 }
 
 .media {
@@ -120,7 +127,7 @@
 
   width: 100%;
 
-  background-color: #f0f0f0;
+  background-color: var(--color-media-background);
 }
 
 .title {
