@@ -1,3 +1,6 @@
+/**
+ *
+ */
 export default class Dom {
   /**
    * Helper for making Elements with class name and attributes

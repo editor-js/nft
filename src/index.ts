@@ -7,7 +7,7 @@ import styles from './styles.module.css';
  * Import types
  */
 import { NftToolData, NftToolConfig, NftToolServerResponse, NftToolServerResponseData, NftToolServerRequest } from './types';
-import { API, BlockTool, PasteConfig, PatternPasteEvent } from '@editorjs/editorjs';
+import { API, BlockTool, PasteConfig, PatternPasteEvent, ToolboxConfig } from '@editorjs/editorjs';
 import { IconNft } from './icons';
 import { IconChevronDown } from '@codexteam/icons';
 import Dom from './utils/dom';
@@ -43,6 +43,11 @@ export default class NftTool implements BlockTool {
 
   /**
    * Class constructor
+   *
+   * @param object.data - previously saved data
+   * @param object.config - config for Tool
+   * @param object.api - Editor.js API
+   * @param object.readOnly - read only mode flag
    */
   constructor({ data, config, api, readOnly }: { data: NftToolData, config: NftToolConfig, api: API, readOnly: boolean }) {
     this.data = data;
@@ -59,28 +64,28 @@ export default class NftTool implements BlockTool {
   /**
    * Add icon and title to the Toolbox
    */
-  static get toolbox() {
+  public static get toolbox(): ToolboxConfig {
     return {
       icon: IconNft,
-      title: 'NFT Token Card'
+      title: 'NFT Token Card',
     };
   }
 
   /**
    * Process pasted content before appending to the Editor
    */
-  static get pasteConfig(): PasteConfig {
+  public static get pasteConfig(): PasteConfig {
     return {
       patterns: {
         opensea: NftTool.regexp,
-      }
+      },
     };
   }
 
   /**
    * Notify core that read-only mode is supported
    */
-  static get isReadOnlySupported(): boolean {
+  public static get isReadOnlySupported(): boolean {
     return true;
   }
 
@@ -106,11 +111,11 @@ export default class NftTool implements BlockTool {
     [
       {
         value: 'ethereum',
-        label: 'Ethereum'
+        label: 'Ethereum',
       },
       {
         value: 'matic',
-        label: 'Polygon'
+        label: 'Polygon',
       },
     ].forEach((network) => {
       const option = Dom.make('option') as HTMLOptionElement;
@@ -122,7 +127,9 @@ export default class NftTool implements BlockTool {
         option.selected = true;
       }
 
-      this.nodes.formNetworkSelect.appendChild(option);
+      if (this.nodes.formNetworkSelect instanceof HTMLSelectElement) {
+        this.nodes.formNetworkSelect.appendChild(option);
+      }
     });
     this.nodes.formNetworkWrapper.appendChild(this.nodes.formNetworkSelect);
 
@@ -187,8 +194,10 @@ export default class NftTool implements BlockTool {
 
   /**
    * Handle pasted content
+   *
+   * @param event - paste event
    */
-  public onPaste(event: PatternPasteEvent) {
+  public onPaste(event: PatternPasteEvent): void {
     try {
       const { data } = event.detail;
       const groups = data.match(NftTool.regexp);
@@ -196,6 +205,7 @@ export default class NftTool implements BlockTool {
       /**
        * If data is not a valid link, show message and do nothing
        */
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       if (!groups || groups.length < 4) {
         throw new Error('Invalid NFT link. Use OpenSea link for Ethereum or Polygon network token.');
       }
@@ -213,7 +223,6 @@ export default class NftTool implements BlockTool {
        * Load NFT data
        */
       this.loadNftData(tokenData);
-
     } catch (error: unknown) {
       console.error('[NFT Tool] onPaste:', error);
 
@@ -231,20 +240,55 @@ export default class NftTool implements BlockTool {
     }
   }
 
-  private fetchNft() {
-    const network = this.nodes.formNetworkSelect.value;
-    const contractAddress = this.nodes.formContractAddressInput.value;
-    const tokenId = this.nodes.formTokenIdInput.value;
-
+  /**
+   *
+   */
+  private fetchNft(): void {
     const tokenData = {
-      network,
-      contractAddress,
-      tokenId,
+      network: '',
+      contractAddress: '',
+      tokenId: '',
     };
+
+    try {
+      if (this.nodes.formNetworkSelect instanceof HTMLSelectElement &&  this.nodes.formNetworkSelect.value) {
+        tokenData.network = this.nodes.formNetworkSelect.value;
+      } else {
+        throw new Error('Network is not selected');
+      }
+
+      if (this.nodes.formContractAddressInput instanceof HTMLInputElement && this.nodes.formContractAddressInput.value) {
+        tokenData.contractAddress = this.nodes.formContractAddressInput.value;
+      } else {
+        throw new Error('Contract address is not set');
+      }
+
+      if (this.nodes.formTokenIdInput instanceof HTMLInputElement && this.nodes.formTokenIdInput.value) {
+        tokenData.tokenId = this.nodes.formTokenIdInput.value;
+      } else {
+        throw new Error('Token ID is not set');
+      }
+    } catch (error: unknown) {
+      console.error('[NFT Tool] fetchNft:', error);
+
+      if (error instanceof Error) {
+        this.api.notifier.show({
+          message: error.message,
+          style: 'error',
+        });
+      }
+
+      return;
+    }
 
     this.loadNftData(tokenData);
   }
 
+  /**
+   * Loads NFT data from the server
+   *
+   * @param tokenData - token data
+   */
   private async loadNftData(tokenData: {network: string, contractAddress: string, tokenId: string}): void {
     const { network, contractAddress, tokenId } = tokenData;
 
@@ -253,6 +297,7 @@ export default class NftTool implements BlockTool {
         message: 'Endpoint API does not set in tools config',
         style: 'error',
       });
+
       return;
     }
 
@@ -261,11 +306,12 @@ export default class NftTool implements BlockTool {
         network,
         contractAddress,
         tokenId,
-      }
+      };
 
       const response = await fetch(this.config.endpoint, {
         method: 'POST',
         headers: {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestData),
@@ -279,7 +325,6 @@ export default class NftTool implements BlockTool {
 
       this.data = data.message as NftToolServerResponseData;
       this.fillNftCard();
-
     } catch (error: unknown) {
       console.error('[NFT Tool] loadNftData:', error);
 
@@ -323,18 +368,22 @@ export default class NftTool implements BlockTool {
       this.nodes.media.appendChild(this.nodes.imageElement);
     }
 
-    if (this.nodes.collection) this.nodes.collection.innerText = this.data.collection;
-    if (this.nodes.title) this.nodes.title.innerText = this.data.title;
+    if (this.nodes.collection && this.data.collection) {
+      this.nodes.collection.innerText = this.data.collection;
+    }
+    if (this.nodes.title && this.data.title) {
+      this.nodes.title.innerText = this.data.title;
+    }
 
-    if (this.nodes.formNetworkSelect) {
+    if (this.nodes.formNetworkSelect instanceof HTMLSelectElement) {
       this.nodes.formNetworkSelect.value = this.data.network;
     }
 
-    if (this.nodes.formContractAddressInput) {
+    if (this.nodes.formContractAddressInput instanceof HTMLInputElement) {
       this.nodes.formContractAddressInput.value = this.data.contractAddress;
     }
 
-    if (this.nodes.formTokenIdInput) {
+    if (this.nodes.formTokenIdInput instanceof HTMLInputElement) {
       this.nodes.formTokenIdInput.value = this.data.tokenId;
     }
   }
@@ -345,4 +394,4 @@ export default class NftTool implements BlockTool {
   private static get regexp(): RegExp {
     return /^https:\/\/opensea\.io\/assets\/([a-zA-Z]+)\/([A-Za-z0-9]+)\/(([A-Za-z0-9]+))$/i;
   }
-};
+}

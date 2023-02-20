@@ -2,7 +2,7 @@ import { Alchemy, Network } from 'alchemy-sdk';
 import { NftToolServerRequest, NftToolServerResponse, NftToolServerResponseData } from '../src/types/index';
 
 import * as dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
 import cors from 'cors';
 import express from 'express';
@@ -66,7 +66,7 @@ app.post('/alchemy', async (req, res) => {
     const nft = {
       contractAddress: contractAddress as string,
       tokenId: tokenId as string,
-    }
+    };
     const metadata = await alchemy.nft.getNftMetadata(nft.contractAddress, nft.tokenId);
 
     /**
@@ -79,11 +79,11 @@ app.post('/alchemy', async (req, res) => {
       title: metadata.title,
       collection: metadata.contract.name as string,
       media: metadata.media[0].gateway as string,
-    }
+    };
 
     const response: NftToolServerResponse = {
       success: true,
-      message: responseToolData
+      message: responseToolData,
     };
 
     res.send(response);
@@ -108,7 +108,7 @@ app.post('/alchemy', async (req, res) => {
 /**
  * Start Express server
  */
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('server started on port 3000');
 });
 

@@ -25,7 +25,10 @@ export default {
 
   plugins: [
     cssInjectedByJsPlugin(),
-    eslint(),
+    eslint({
+      fix: true,
+      failOnError: false,
+    }),
   ],
 };
 
