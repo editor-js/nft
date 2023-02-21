@@ -8,8 +8,7 @@ import styles from './styles.module.css';
  */
 import { NftToolData, NftToolConfig, NftToolServerResponse, NftToolServerResponseData, NftToolServerRequest } from './types';
 import { API, BlockTool, PasteConfig, PatternPasteEvent, ToolboxConfig } from '@editorjs/editorjs';
-import { IconNft } from './icons';
-import { IconChevronDown } from '@codexteam/icons';
+import { IconChevronDown, IconStar } from '@codexteam/icons';
 import Dom from './utils/dom';
 
 /**
@@ -66,8 +65,8 @@ export default class NftTool implements BlockTool {
    */
   public static get toolbox(): ToolboxConfig {
     return {
-      icon: IconNft,
-      title: 'NFT Token Card',
+      icon: IconStar,
+      title: 'NFT Card',
     };
   }
 
@@ -289,7 +288,7 @@ export default class NftTool implements BlockTool {
    *
    * @param tokenData - token data
    */
-  private async loadNftData(tokenData: {network: string, contractAddress: string, tokenId: string}): void {
+  private async loadNftData(tokenData: {network: string, contractAddress: string, tokenId: string}): Promise<void> {
     const { network, contractAddress, tokenId } = tokenData;
 
     if (!this.config.endpoint) {
@@ -308,12 +307,14 @@ export default class NftTool implements BlockTool {
         tokenId,
       };
 
+      const headers = {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        'Content-Type': 'application/json',
+      };
+
       const response = await fetch(this.config.endpoint, {
         method: 'POST',
-        headers: {
-          // eslint-disable-next-line @typescript-eslint/naming-convention
-          'Content-Type': 'application/json',
-        },
+        headers: Object.assign(headers, this.config.additionalRequestHeaders),
         body: JSON.stringify(requestData),
       });
 

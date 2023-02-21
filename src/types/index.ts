@@ -28,6 +28,11 @@ export interface NftToolConfig extends ToolConfig {
    * API endpoint to fetch NFT data
    */
   endpoint: string;
+
+  /**
+   * Specific request headers
+   */
+  additionalRequestHeaders?: Record<string, string>;
 }
 
 export interface NftToolServerRequest {
