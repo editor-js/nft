@@ -150,7 +150,7 @@ export default class NftTool implements BlockTool {
     this.nodes.formTokenIdInput.placeholder = '12345';
     this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdInput);
 
-    this.nodes.formRefetchButton = Dom.make('button', styles['form-button']);
+    this.nodes.formRefetchButton = Dom.make('div', styles['form-button']);
     this.nodes.formRefetchButton.innerHTML = this.api.i18n.t('Fetch NFT');
     this.nodes.formRefetchButton.addEventListener('click', () => {
       this.fetchNft();
