@@ -131,6 +131,9 @@ export default class NftTool implements BlockTool {
       }
     });
     this.nodes.formNetworkWrapper.appendChild(this.nodes.formNetworkSelect);
+    this.nodes.formNetworkSelect.addEventListener('change', () => {
+      this.fetchNft();
+    });
 
     this.nodes.formContractAddressWrapper = Dom.make('div', styles['form-param']);
     this.nodes.formContractAddressLabel = Dom.make('label', styles['form-label']);
@@ -140,6 +143,9 @@ export default class NftTool implements BlockTool {
     this.nodes.formContractAddressInput = Dom.make('input', styles['form-input']);
     this.nodes.formContractAddressInput.placeholder = '0x...';
     this.nodes.formContractAddressWrapper.appendChild(this.nodes.formContractAddressInput);
+    this.nodes.formContractAddressInput.addEventListener('input', () => {
+      this.fetchNft();
+    });
 
     this.nodes.formTokenIdWrapper = Dom.make('div', styles['form-param']);
     this.nodes.formTokenIdLabel = Dom.make('label', styles['form-label']);
@@ -149,30 +155,28 @@ export default class NftTool implements BlockTool {
     this.nodes.formTokenIdInput = Dom.make('input', styles['form-input']);
     this.nodes.formTokenIdInput.placeholder = '12345';
     this.nodes.formTokenIdWrapper.appendChild(this.nodes.formTokenIdInput);
-
-    this.nodes.formRefetchButton = Dom.make('div', styles['form-button']);
-    this.nodes.formRefetchButton.innerHTML = this.api.i18n.t('Fetch NFT');
-    this.nodes.formRefetchButton.addEventListener('click', () => {
+    this.nodes.formTokenIdInput.addEventListener('input', () => {
       this.fetchNft();
     });
 
-    this.nodes.form.appendChild(this.nodes.formNetworkWrapper);
-    this.nodes.form.appendChild(this.nodes.formContractAddressWrapper);
-    this.nodes.form.appendChild(this.nodes.formTokenIdWrapper);
-    this.nodes.form.appendChild(this.nodes.formRefetchButton);
 
-    /** Compose card */
-    this.nodes.card = Dom.make('div', styles['card']);
-    this.nodes.media = Dom.make('div');
+    this.nodes.media = Dom.make('div', styles['media-wrapper']);
+
+    this.nodes.cardInfo = Dom.make('div', styles['card']);
     this.nodes.title = Dom.make('div', styles['title']);
     this.nodes.collection = Dom.make('div', styles['collection']);
+    this.nodes.cardInfo.appendChild(this.nodes.title);
+    this.nodes.cardInfo.appendChild(this.nodes.collection);
 
-    this.nodes.card.appendChild(this.nodes.media);
-    this.nodes.card.appendChild(this.nodes.title);
-    this.nodes.card.appendChild(this.nodes.collection);
+    this.nodes.column = Dom.make('div', styles['column']);
+    this.nodes.column.appendChild(this.nodes.cardInfo);
+    this.nodes.column.appendChild(this.nodes.formNetworkWrapper);
+    this.nodes.column.appendChild(this.nodes.formContractAddressWrapper);
+    this.nodes.column.appendChild(this.nodes.formTokenIdWrapper);
 
-    this.nodes.wrapper.appendChild(this.nodes.form);
-    this.nodes.wrapper.appendChild(this.nodes.card);
+
+    this.nodes.wrapper.appendChild(this.nodes.media);
+    this.nodes.wrapper.appendChild(this.nodes.column);
 
     /**
      * If data is passed, render NFT card
@@ -244,28 +248,18 @@ export default class NftTool implements BlockTool {
    */
   private fetchNft(): void {
     const tokenData = {
-      network: '',
-      contractAddress: '',
-      tokenId: '',
+      network: this.nodes.formNetworkSelect instanceof HTMLSelectElement && this.nodes.formNetworkSelect.value || '',
+      contractAddress: this.nodes.formContractAddressInput instanceof HTMLInputElement && this.nodes.formContractAddressInput.value || '',
+      tokenId: this.nodes.formTokenIdInput instanceof HTMLInputElement && this.nodes.formTokenIdInput.value || '',
     };
 
     try {
-      if (this.nodes.formNetworkSelect instanceof HTMLSelectElement &&  this.nodes.formNetworkSelect.value) {
-        tokenData.network = this.nodes.formNetworkSelect.value;
-      } else {
-        throw new Error('Network is not selected');
+      if (!tokenData.contractAddress && !tokenData.tokenId) {
+        throw new Error('Contract address and Token ID are not set');
       }
 
-      if (this.nodes.formContractAddressInput instanceof HTMLInputElement && this.nodes.formContractAddressInput.value) {
-        tokenData.contractAddress = this.nodes.formContractAddressInput.value;
-      } else {
-        throw new Error('Contract address is not set');
-      }
-
-      if (this.nodes.formTokenIdInput instanceof HTMLInputElement && this.nodes.formTokenIdInput.value) {
-        tokenData.tokenId = this.nodes.formTokenIdInput.value;
-      } else {
-        throw new Error('Token ID is not set');
+      if (!tokenData.contractAddress || !tokenData.tokenId) {
+        return;
       }
     } catch (error: unknown) {
       console.error('[NFT Tool] fetchNft:', error);

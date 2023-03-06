@@ -23,15 +23,15 @@ app.post('/alchemy', async (req, res) => {
      * Validate request body
      */
     if (!network) {
-      throw new Error('«network» is required');
+      throw new Error('"network" is required');
     }
 
     if (!contractAddress) {
-      throw new Error('«contractAddress» is required');
+      throw new Error('"contractAddress" is required');
     }
 
     if (!tokenId) {
-      throw new Error('«tokenId» is required');
+      throw new Error('"tokenId" is required');
     }
 
     /**
@@ -49,7 +49,7 @@ app.post('/alchemy', async (req, res) => {
         break;
 
       default:
-        throw new Error(`Network «${network}» is not supported yet`);
+        throw new Error(`Network "${network}" is not supported yet`);
     }
 
     /**

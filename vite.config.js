@@ -14,7 +14,7 @@ export default {
       entry: path.resolve(__dirname, 'src', 'index.ts'),
       name: 'NftTool',
       formats: ['umd', 'es'],
-      fileName: 'NftTool'
+      fileName: 'NftTool',
     },
   },
 

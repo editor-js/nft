@@ -24,16 +24,78 @@
   flex-direction: row;
 
   align-items: stretch;
-  padding: 20px 0;
-  gap: 30px;
+  padding: 10px 0;
+  gap: 26px;
 }
 
-.form {
-  width: 100%;
+.media-wrapper {
+	flex-basis: 283px;
+	flex-grow: 0;
+	flex-shrink: 0;
 
-  &-param:not(:last-child) {
-    margin-bottom: 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: var(--color-media-background);
+}
+
+.media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.column {
+  flex-grow: 1;
+
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.title {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 22px;
+
+  &:empty::after {
+    content: "";
+    display: block;
+    height: 14px;
+    width: 79px;
+    border-radius: 11px;
+    background-color: var(--color-border);
   }
+}
+
+.collection {
+  margin-top: 4px;
+
+  font-weight: regular;
+  font-size: 14px;
+  line-height: 22px;
+
+  color: var(--color-card-collection);
+
+  &:empty::after {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    content: "";
+    display: block;
+    height: 10px;
+    width: 149px;
+    border-radius: 11px;
+    background-color: var(--color-border);
+  }
+}
+
+
+.form {
 
   &-label {
     display: block;
@@ -81,76 +143,4 @@
       border-color: var(--color-border-focus);
     }
   }
-
-  &-button {
-    /* width: 100%; */
-    text-align: center;
-
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: var(--border);
-    background-color: var(--color-button-background);
-    font-size: 14px;
-    line-height: 1.4;
-    color: var(--color-button-text);
-    outline: none;
-
-
-    &:hover {
-      cursor: pointer;
-      background-color: var(--color-button-background-hover);
-    }
-
-    &:active {
-      background-color: var(--color-button-background-active);
-    }
-
-    &:focus {
-      border-color: var(--color-border-focus);
-    }
-  }
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  align-items: column;
-  padding: 40px;
-
-  width: 230px;
-
-  border-radius: 16px;
-  border: var(--border);
-  box-shadow: var(--card-box-shadow);
-}
-
-.media {
-  border-radius: 16px;
-  overflow: hidden;
-
-  width: 100%;
-
-  background-color: var(--color-media-background);
-}
-
-.title {
-  margin-top: 20px;
-
-  font-style: normal;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 23px;
-
-  text-align: center;
-}
-
-.collection {
-  margin-top: 4px;
-
-  font-weight: regular;
-  font-size: 14px;
-  line-height: 22px;
-  text-align: center;
-
-  color: var(--color-card-collection);
 }
