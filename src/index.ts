@@ -244,7 +244,7 @@ export default class NftTool implements BlockTool {
   }
 
   /**
-   *
+   * Load NFT data from API
    */
   private fetchNft(): void {
     const tokenData = {
@@ -323,6 +323,8 @@ export default class NftTool implements BlockTool {
     } catch (error: unknown) {
       console.error('[NFT Tool] loadNftData:', error);
 
+      this.clearNftCard();
+
       if (error instanceof Error) {
         this.api.notifier.show({
           message: error.message,
@@ -382,6 +384,24 @@ export default class NftTool implements BlockTool {
       this.nodes.formTokenIdInput.value = this.data.tokenId;
     }
   }
+
+  /**
+   * Clear NFT card
+   */
+  private clearNftCard(): void {
+    if (this.nodes.media) {
+      this.nodes.media.innerHTML = '';
+    }
+
+    if (this.nodes.collection) {
+      this.nodes.collection.innerText = '';
+    }
+
+    if (this.nodes.title) {
+      this.nodes.title.innerText = '';
+    }
+  }
+
 
   /**
    * Regexp for a opensea link
