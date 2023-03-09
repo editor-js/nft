@@ -1,11 +1,11 @@
 {
   "name": "@editorjs/nft",
   "description": "NFT Tool for Editor.js",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "repository": "https://github.com/editor-js/nft",
-  "main": "dist/nft.umd.js",
-  "module": "dist/nft.mjs",
+  "main": "dist/NftTool.umd.js",
+  "module": "dist/NftTool.mjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
