@@ -1,0 +1,69 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+
+  <title>Editor.js example page</title>
+
+  <style>
+    body {
+      font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+  </style>
+</head>
+<body>
+  <div id="editorjs"></div>
+
+  <button id="save-button">Save</button>
+  <pre id="output"></pre>
+
+  <script type="module">
+    import EditorJS from '@editorjs/editorjs';
+    import NftTool from './src/index.ts';
+
+    const editor = new EditorJS({
+      tools: {
+        nft: {
+          class: NftTool,
+          config: {
+            endpoint: 'http://localhost:3000/alchemy',
+            additionalRequestHeaders: {}
+          }
+        },
+      },
+      data: {
+        blocks: [,
+          {
+            type: "paragraph",
+            data: {
+                text: "Try to paste here an Opensea link item. Here is an example:"
+            }
+          },
+          {
+            type: 'nft',
+            data: {
+              network: 'matic',
+              contractAddress: '0x6c97ef47d60b35f858ad04c4b4f649747e00a417',
+              tokenId: '351806',
+            },
+          },
+          {
+            type: 'nft',
+            data: {
+              network: 'ethereum',
+              contractAddress: '0x306b1ea3ecdf94ab739f1910bbda052ed4a9f949',
+              tokenId: '12064',
+            },
+          },
+        ],
+      },
+    });
+
+    const saveButton = document.getElementById('save-button');
+    const output = document.getElementById('output');
+
+    saveButton.addEventListener('click', () => {
+      editor.save().then( savedData => {
+        output.innerHTML = JSON.stringify(savedData, null, 4);
+      })
+    })
+  </script>
